@@ -23,7 +23,7 @@ const TimeCard = ({ entry }: TimeCardProps) => {
         : null;
 
     return (
-        <div className={`flex items-center justify-between mx-10 p-4 rounded-2xl shadow ${
+        <div className={`flex items-center justify-between p-4 rounded-2xl shadow ${
             entry.isActive ? 'bg-green-50 border border-green-200' : 'bg-white'
         }`}>
             {/* Left side - Date and times */}
