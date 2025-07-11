@@ -2,13 +2,16 @@ import {useTimeEntries} from "../hooks/useTimeEntries";
 import type {TimeEntry} from "../model/time-entry/TimeEntry";
 import {calculateDuration, generateID} from "../utils/timeUtils";
 import TimeCard from "./time-tracking/TimeCard";
-import { Play, Square } from 'lucide-react';
+import {Timer, Square} from 'lucide-react';
 import {useEffect, useState} from "react";
 import Header from "./Header";
+import MonthPicker from "./time-tracking/MonthPicker";
 
 
 const Home = () => {
     const {entries, addEntry, updateEntry, getActiveEntry} = useTimeEntries();
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Current month
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
     const isRunning = getActiveEntry() !== null;
     const [, forceUpdate] = useState({});
 
@@ -19,6 +22,12 @@ const Home = () => {
 
         return () => clearInterval(timer);
     }, []);
+
+    const filteredEntries = entries.filter(entry => {
+        const entryDate = new Date(entry.startTime);
+        return entryDate.getMonth() === selectedMonth &&
+            entryDate.getFullYear() === selectedYear;
+    });
 
     const getElapsedTime = () => {
         const activeEntry = getActiveEntry();
@@ -75,49 +84,59 @@ const Home = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <Header/>
-        <div className="max-w-7xl mx-auto ">
-            <div className="flex justify-end mb-6">
-                <button
-                    onClick={handleTimerToggle}
-                    className={` flex items-center px-6 py-3 rounded-lg font-semibold text-white transition-colors ${
-                        isRunning
-                            ? 'bg-red-500 hover:bg-red-600'
-                            : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                >
-                    {isRunning ? (
-                        <>
-                            <Square size={25} className="mr-2" />
-                            {getElapsedTime()}
-                        </>
-                    ) : (
-                        <>
-                            <Play size={25} className="mr-2" />
-                            Start Timer
-                        </>
-                    )}
-                </button>
-            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-end mb-6">
+                    <MonthPicker
+                        selectedMonth={selectedMonth}
+                        selectedYear={selectedYear}
+                        onMonthChange={(month, year) => {
+                            setSelectedMonth(month);
+                            setSelectedYear(year);
+                        }}
+                    />
+                    <button
+                        onClick={handleTimerToggle}
+                        className={` flex items-center ml-1 px-4 py-2 rounded-lg font-semibold text-white transition-colors ${
+                            isRunning
+                                ? 'bg-red-500 hover:bg-red-600'
+                                : 'bg-green-500 hover:bg-green-600'
+                        }`}
+                    >
+                        {isRunning ? (
+                            <>
+                                <Square size={25}
+                                        className="mr-2"/>
+                                {getElapsedTime()}
+                            </>
+                        ) : (
+                            <>
+                                <Timer size={23}
+                                      className="mr-2"/>
+                                Track
+                            </>
+                        )}
+                    </button>
+                </div>
+                    <div className="space-y-4">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            Time Entries ({filteredEntries.length})
+                        </h2>
 
-            <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                    Time Entries ({entries.length})
-                </h2>
-
-                {entries.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">
-                        No time entries yet. Start tracking!
-                    </p>
-                ) : (
-                    <div className="space-y-2">
-                        {entries.map(entry => (<TimeCard key={entry.id} entry={entry} />
-                        ))}
+                        {filteredEntries.length === 0 ? (
+                            <p className="text-gray-500 text-center py-8">
+                                No time entries yet. Start tracking!
+                            </p>
+                        ) : (
+                            <div className="space-y-2 max-h-[78vh] overflow-auto scrollbar-hide snap-y snap-mandatory">
+                                {filteredEntries.map(entry => (<div key={entry.id} className="snap-always snap-end"><TimeCard
+                                                                              entry={entry}/></div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </div>
-        </div>
-        </div>
-    );
-};
+            );
+            };
 
-export default Home;
+            export default Home;
