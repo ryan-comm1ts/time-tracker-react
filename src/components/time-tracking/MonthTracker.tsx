@@ -9,7 +9,7 @@ import MonthPicker from "./MonthPicker";
 
 
 const MonthTracker = () => {
-    const {entries, addEntry, updateEntry, getActiveEntry} = useTimeEntries();
+    const {entries, addEntry, updateEntry, getActiveEntry, deleteEntry} = useTimeEntries();
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Current month
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
     const isRunning = getActiveEntry() !== null;
@@ -129,7 +129,7 @@ const MonthTracker = () => {
                     ) : (
                         <div className="space-y-2 max-h-[78vh] overflow-auto scrollbar-hide snap-y snap-mandatory">
                             {filteredEntries.map(entry => (<div key={entry.id} className="snap-always snap-end"><TimeCard
-                                    entry={entry}/></div>
+                                    entry={entry} onDelete={deleteEntry}/></div>
                             ))}
                         </div>
                     )}
